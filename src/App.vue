@@ -1,17 +1,23 @@
 <template>
 	<div id="app">
 
-		<app-header/>
+		<app-header :changeSearch="changeSearch"/>
 
 		<div class="container">
 			<h1 class="pt-3 pb-3">Персонажи Marvel</h1>
+
+
+			<h5 v-if="!character.length && !loading">nothing!!!</h5>
+
+<!--			<pre>APP search:{{search}}</pre>
+			<pre>character:{{character}}</pre>-->
 
 			<app-modal :character="characters[characterIndex]" />
 
 			<spinner v-if="loading"/>
 
 			<div class="row">
-				<div v-for="(el, index) in characters" :key="el.id" class="card mb-3" style="max-width: 540px;">
+				<div v-for="(el, index) in character" :key="el.id" class="card mb-3 col-sm-12 col-md-6 col-lg-4" style="max-width: 540px;">
 					<div class="row g-0">
 						<div class="col-md-4">
 							<img :src="el.thumbnail"
@@ -21,7 +27,7 @@
 							<div class="card-body">
 								<h5 class="card-title">{{ el.name }}</h5>
 								<!-- Button trigger modal -->
-								<button type="button" class="btn btn-primary" data-bs-toggle="modal"
+								<button type="button" class="btn btn-secondary btn-sm" data-bs-toggle="modal"
 								        data-bs-target="#exampleModal" @click="characterIndex = index">
 									Подробнее
 								</button>
@@ -52,6 +58,7 @@ export default {
 			loading: false,
 			characters: [],
 			characterIndex: 0,
+			search: '',
 		}
 	},
 	methods: {
@@ -60,8 +67,17 @@ export default {
 				.then(res => res.json())
 				.then(json => this.characters = json);
 		},
+		changeSearch: function (value) {
+			this.search = value;
+		},
 	},
 	computed: {
+		character: function () {
+			const {characters, search} = this;
+			return characters.filter((character) => {
+				return character.name.toLowerCase().indexOf(search.toLowerCase()) !== -1
+			})
+		}
 	},
 	async mounted() {
 		this.loading = true;
